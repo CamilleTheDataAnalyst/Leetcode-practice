@@ -6,36 +6,28 @@ FROM Teacher
 GROUP BY teacher_id;
 
   Notes:
-  This is a clean GROUP BY + AVG — you've got all the tools. Let me guide you (this is from your SQLBolt Employees table).
+  1. Bundle by teacher (GROUP BY teacher_id). 🗂️
+  Pile up all the rows belonging to each teacher into one group — teacher 1's rows in one pile, teacher 2's in another.
   
-  Step 1: Spot the "for each role" clue. 🗂️
-  "For each role" means you're bundling employees by their Role and computing something per group. That's GROUP BY Role.
+  2. Count the DISTINCT subjects (the key twist). 🎯
+  COUNT(DISTINCT subject_id) counts how many different subject IDs are in each pile — throwing out repeats first.
   
-  Step 2: What to compute per group.
-  "Average number of years employed" → average the Years_employed column within each role group. That's AVG(Years_employed).
+  Teacher 1's subjects: 2, 2, 3 → unique ones are {2, 3} → count = 2. ✓ (The duplicate 2 only counts once.)
+  Teacher 2's subjects: 1, 2, 3, 4 → all different → count = 4. ✓
   
-  Step 3: What to SELECT.
-  You want the role name and its average:
+  3. Name it (AS cnt). ✏️
+  Rename the count to match the output header.
   
-  SELECT Role, AVG(Years_employed)
+  So the whole thing reads: "For each teacher, count how many distinct subjects they teach." 📚
   
-  Step 4: Assemble it.
+  The one thing to bank here is a small but important combo you haven't used yet:
   
-  sql
-  SELECT Role, AVG(Years_employed)
-  FROM Employees
-  GROUP BY Role;
+  COUNT(DISTINCT column) = count unique values, ignoring duplicates.
   
-  Step 5: Trace it. 🔍
-  Look at the Engineers: Becky (4), Dan B. (2), Sharon (6), Dan M. (4), Malcom (1). GROUP BY Role piles all five together, and AVG(Years_employed) = (4+2+6+4+1)/5 = 3.4. Artists get their own pile with their own average. ✓
+  Compare the three counting flavors you now know:
   
-  That's the whole thing:
+  COUNT(*) → counts all rows (would give teacher 1 → 3, wrong here).
+  COUNT(column) → counts non-null rows (ignores nulls).
+  COUNT(DISTINCT column) → counts unique values (the right tool this time).
   
-  sql
-  SELECT Role, AVG(Years_employed)
-  FROM Employees
-  GROUP BY Role;
-  
-  The pattern to recognize: "for each ___, find the average/count/total of ___" is almost always GROUP BY [the "each" thing] + an aggregate (AVG/COUNT/SUM) on the other thing. You've now done this shape several times (Project Employees, Average Time per Machine) — it's becoming second nature. 🔥
-  
-  One optional polish: if you want the average rounded, wrap it — ROUND(AVG(Years_employed), 2). And you can name the column with AS years if you'd like a cleaner header. Give it a run!
+  Whenever a question says "how many different/unique X," that's your cue to slip DISTINCT inside the COUNT. 🔥
